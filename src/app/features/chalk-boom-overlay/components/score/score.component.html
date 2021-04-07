@@ -1,0 +1,5 @@
+<div *ngFor="let key of keys">
+    <span>{{ key }}</span><br>
+    {{scores[key] * 100 | number: '1.1-1' }}
+</div>
+

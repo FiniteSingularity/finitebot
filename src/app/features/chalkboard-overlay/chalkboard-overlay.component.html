@@ -1,0 +1,23 @@
+<app-chalkboard-cheer
+  *ngIf="currentOverlay === 'cheer'"
+  [msg]="currentMessage"
+  [extraData]="currentExtraData"
+  (writingComplete) = "writingComplete()"
+></app-chalkboard-cheer>
+<app-chalkboard-point-test
+  *ngIf="currentOverlay === 'point-test'"
+    [msg]="currentMessage"
+  (writingComplete) = "writingComplete()"
+></app-chalkboard-point-test>
+<app-chalkboard-subscribe
+  *ngIf="currentOverlay === 'subscribe'"
+  [msg]="currentMessage"
+  [extraData]="currentExtraData"
+  (writingComplete)="writingComplete()"
+></app-chalkboard-subscribe>
+<app-chalkboard-raid
+  *ngIf="currentOverlay === 'raid'"
+  [msg]="currentMessage"
+  [extraData]="currentExtraData"
+  (writingComplete)="writingComplete()"
+></app-chalkboard-raid>

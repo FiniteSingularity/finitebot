@@ -1,0 +1,31 @@
+<ng-container *ngIf="phase === 'startup'">
+  <h1>Type <span>!me</span> in chat to play.</h1>
+  <ul class='player-list'>
+    <li *ngFor="let player of players">{{ player.name }}</li>
+  </ul>
+</ng-container>
+<ng-container *ngIf="phase !== 'startup'">
+  <app-score *ngIf="scores" [scores]="scores"></app-score>
+  <app-timer [gameTime]="gameTime" [timeElapsed]="elapsedTime - startTime"></app-timer>
+  <app-rocket 
+    *ngFor="let player of players"
+    [progress]="progress"
+    [speed]="speed"
+    [player]="player.name"
+    [teamData]="teamData(player)"
+  ></app-rocket>
+  <app-boom
+    *ngFor="let boom of booms; let i = index;"
+    [position]="boom.position"
+    [color]="boom.color"
+    [zIndex]="100+i"
+    [maxRadius]="boom.radius"
+    [progress]="progress"
+    [boomRate]="boomRate"
+    (currentRadius)="currentRadius($event, i)"
+  >
+  </app-boom>
+</ng-container>
+<ng-container *ngIf="phase === 'winner'">
+  <div class="winner">{{ winner() }} WON!!!!</div>
+</ng-container>

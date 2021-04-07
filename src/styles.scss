@@ -1,1 +1,24 @@
 /* You can add global styles to this file, and also import other style files */
+
+body {
+  margin: 0px;
+  overflow: hidden;
+}
+
+.erase {
+  fill: none;
+  stroke: #000000;
+  stroke-width: 50px;
+
+  /* Stroke-dasharray property */
+  stroke-dasharray: 1353px;
+  stroke-dashoffset: 1353px;
+  animation: move 1.4s linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes move {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}

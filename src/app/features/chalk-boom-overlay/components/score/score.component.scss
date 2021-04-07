@@ -1,0 +1,22 @@
+:host {
+    display: block;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 9999;
+    color: #FFFFFF;
+    font-family: 'Architects Daughter';
+    font-size: 46px;
+
+    div {
+        width: 200px;
+        float: right;
+        text-align: center;
+        &:first-of-type {
+            float: left;
+        }
+        span {
+            text-decoration: underline;
+        }
+    }
+}

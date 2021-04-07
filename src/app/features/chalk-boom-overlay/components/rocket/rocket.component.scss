@@ -1,0 +1,43 @@
+:host {
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  font-family: 'Architects Daughter';
+}
+
+.rocket {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  mask-image: url(/assets/brush-mask-1.png);
+  mask-position: center center;
+  z-index: 100000;
+  overflow: visible;
+}
+
+.name {
+  position: absolute;
+  width: 300px;
+  text-align: center;
+  font-size: 32px;
+  font-weight: bold;
+  z-index: 100000;
+
+  .boom-meter-holder {
+    border-style: solid;
+    border-width: 3px;
+    width: 100%;
+    height: 8px;
+
+    .boom-amount {
+      width: 0%;
+      height: 100%;
+    }
+  }
+}

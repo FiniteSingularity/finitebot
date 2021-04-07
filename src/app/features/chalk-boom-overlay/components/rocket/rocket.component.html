@@ -1,0 +1,33 @@
+<div
+  class='rocket'
+  [ngStyle]="{
+    'left.px': data.position.x,
+    'top.px': data.position.y,
+    'background-color': teamData.player
+  }"
+>
+</div>
+<div
+  class="name"
+  [ngStyle]="{
+    'left.px': data.position.x-100,
+    'top.px': data.position.y+30,
+    'color': teamData.player
+  }"
+>
+  {{ data.name }}
+  <div
+    class="boom-meter-holder"
+    [ngStyle]="{
+      'border-color': teamData.player
+    }"
+  >
+    <div
+      class="boom-amount"
+      [ngStyle]="{
+        'width.%': data.boomAmount * 100.0,
+        'background-color': teamData.player
+      }"
+    ></div>
+  </div>
+</div>

@@ -1,0 +1,6 @@
+<div id="writing-container" #writingContainer></div>
+<div class="profile-picture">
+  <div class="image-holder" [@openClose]="showProfileImage ? 'open' : 'closed'">
+    <img [src]="extraData.data[0].profile_image_url" />
+  </div>
+</div>
