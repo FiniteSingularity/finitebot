@@ -14,6 +14,7 @@ export interface TwitchEvent {
   overlay: string;
   eventData: any;
   extraData?: any;
+  blur: boolean;
 }
 
 @Injectable({

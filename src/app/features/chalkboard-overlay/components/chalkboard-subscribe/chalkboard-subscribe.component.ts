@@ -59,7 +59,7 @@ export class ChalkboardSubscribeComponent implements OnInit {
   }
 
   setupMessage(): void {
-    const data = this.msg.event_data.data.message;
+    const data = this.msg.event_data.message;
     const tier = data.sub_plan === '1000' ? 'at Tier 1' :
       data.sub_plan === '2000' ? 'at Tier 2' :
         data.sub_play === '3000' ? 'at Tier 3' :

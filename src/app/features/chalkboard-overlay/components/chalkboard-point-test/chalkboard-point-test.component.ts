@@ -24,7 +24,7 @@ export class ChalkboardPointTestComponent implements OnInit {
   setupMessage(): void {
     const data = this.msg.event_data;
     const message1 = `${data.user_name} says:`;
-    const message2 = data.user_input;
+    const message2 = data.user_input.message;
     this.writeText(message1, message2);
   }
 

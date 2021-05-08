@@ -19,5 +19,11 @@
   *ngIf="currentOverlay === 'raid'"
   [msg]="currentMessage"
   [extraData]="currentExtraData"
+  [obs]="obs"
   (writingComplete)="writingComplete()"
 ></app-chalkboard-raid>
+<app-bring-finite-water
+  *ngIf="currentOverlay === 'bring-water'"
+  [obs]="obs"
+  (redemptionComplete)="writingComplete()"
+></app-bring-finite-water>

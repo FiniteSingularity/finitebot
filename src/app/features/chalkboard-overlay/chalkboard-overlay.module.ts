@@ -7,6 +7,7 @@ import { ChalkboardCheerComponent } from './components/chalkboard-cheer/chalkboa
 import { ChalkboardPointTestComponent } from './components/chalkboard-point-test/chalkboard-point-test.component';
 import { ChalkboardSubscribeComponent } from './components/chalkboard-subscribe/chalkboard-subscribe.component';
 import { ChalkboardRaidComponent } from './components/chalkboard-raid/chalkboard-raid.component';
+import { BringFiniteWaterComponent } from './components/bring-finite-water/bring-finite-water.component';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { ChalkboardRaidComponent } from './components/chalkboard-raid/chalkboard
     ChalkboardCheerComponent,
     ChalkboardPointTestComponent,
     ChalkboardSubscribeComponent,
-    ChalkboardRaidComponent
+    ChalkboardRaidComponent,
+    BringFiniteWaterComponent
   ],
   imports: [
     CommonModule,

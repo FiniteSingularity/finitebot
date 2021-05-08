@@ -49,7 +49,7 @@ export class GeneralOverlayComponent implements OnInit {
         return;
       }
       if(msg.event_type === 'follow') {
-        this.eventQueue.push({overlay: 'follow', eventData: msg});
+        this.eventQueue.push({overlay: 'follow', eventData: msg, blur: false});
       }
       if(this.eventQueue.length === 1) {
         this.checkEventQueue(true);
