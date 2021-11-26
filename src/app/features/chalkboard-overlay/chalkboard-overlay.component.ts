@@ -196,7 +196,9 @@ export class ChalkboardOverlayComponent implements OnInit {
             if (i === 0 && val.position[0] > 0) {
               current.push({
                 mc_type: 'string',
-                value: message.text.substr(0, val.position[0]),
+                value: Array.from(message.text)
+                  .slice(0, val.position[0])
+                  .join(''),
               });
             }
             current.push({
@@ -208,12 +210,16 @@ export class ChalkboardOverlayComponent implements OnInit {
               const subStrLng = nextStart - val.position[1] - 1;
               current.push({
                 mc_type: 'string',
-                value: message.text.substr(val.position[1] + 1, subStrLng),
+                value: Array.from(message.text)
+                  .slice(val.position[1] + 1, nextStart)
+                  .join(''),
               });
             } else if (val.position[1] != message.text.length - 1) {
               current.push({
                 mc_type: 'string',
-                value: message.text.substr(val.position[1] + 1),
+                value: Array.from(message.text)
+                  .slice(val.position[1] + 1)
+                  .join(''),
               });
             }
             return [...acc, ...current];
@@ -224,7 +230,6 @@ export class ChalkboardOverlayComponent implements OnInit {
               value: message.text,
             },
           ];
-    // console.log(payload);
     this.http.post('http://192.168.1.116:5000', payload).subscribe((resp) => {
       console.log(resp);
     });
