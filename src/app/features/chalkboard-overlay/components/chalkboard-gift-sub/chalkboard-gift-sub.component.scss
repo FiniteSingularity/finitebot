@@ -1,0 +1,12 @@
+.profile-picture {
+  margin: 0 auto;
+  width: 300px;
+  height: 300px;
+  mask: url(/assets/brush-mask-1.png);
+
+  .image-holder {
+    width: 0px;
+    height: 0px;
+    overflow: hidden;
+  }
+}

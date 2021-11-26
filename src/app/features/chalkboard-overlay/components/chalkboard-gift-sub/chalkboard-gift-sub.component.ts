@@ -17,28 +17,11 @@ import {
 } from '@angular/animations';
 
 import * as Vara from 'vara';
-import OBSWebSocket from 'obs-websocket-js';
-import { MersenneTwister } from 'fast-mersenne-twister';
-
-const timingsMap = {
-  1: {
-    eraseTimeout: 6500,
-    removeChalkTimeout: 8000,
-    turnOffVidTimeout: 9500,
-    endTimeout: 10000,
-  },
-  2: {
-    eraseTimeout: 4500,
-    removeChalkTimeout: 6500,
-    turnOffVidTimeout: 7500,
-    endTimeout: 8000,
-  },
-};
 
 @Component({
-  selector: 'app-chalkboard-raid',
-  templateUrl: './chalkboard-raid.component.html',
-  styleUrls: ['./chalkboard-raid.component.scss'],
+  selector: 'app-chalkboard-gift-sub',
+  templateUrl: './chalkboard-gift-sub.component.html',
+  styleUrls: ['./chalkboard-gift-sub.component.scss'],
   animations: [
     trigger('openClose', [
       state(
@@ -60,10 +43,9 @@ const timingsMap = {
     ]),
   ],
 })
-export class ChalkboardRaidComponent implements OnInit {
+export class ChalkboardGiftSubComponent implements OnInit {
   @Input() msg: any;
   @Input() extraData: any;
-  @Input() obs: OBSWebSocket;
 
   @Output() writingComplete = new EventEmitter<null>();
 
@@ -75,88 +57,30 @@ export class ChalkboardRaidComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {
-    console.log('Raid ngOnInit()');
     this.setupMessage();
   }
 
   setupMessage(): void {
+    console.log('setup message');
     const data = this.msg.event_data;
-    const message1 = `${data.from_broadcaster_user_name} raided`;
-    const message2 = `with ${data.viewers} viewers!`;
-    this.writeText(message1, message2);
+    const gifts = data.total;
+    const tier =
+      data.tier === '1000'
+        ? 'Tier 1'
+        : data.tier === '2000'
+        ? 'Tier 2'
+        : data.tier === '3000'
+        ? 'Tier 3'
+        : 'prime';
+    const cumulative_total = data.cumulative_total;
+
+    const message1 = `${data.user_name} gifted ${gifts}`;
+    const message2 = `${tier} subs.`;
+    const message3 = `They have gifted ${cumulative_total} total subs.`;
+    this.writeText(message1, message2, message3);
   }
 
-  turnOnVideo(videoId: number) {
-    this.obs.send('SetSourceFilterSettings', {
-      sourceName: `raid-${videoId}`,
-      filterName: 'Opacity',
-      filterSettings: {
-        opacity: 0,
-      },
-    });
-    this.obs.send('SetSceneItemProperties', {
-      'scene-name': 'DSLR Face Cam Composite',
-      item: { name: `raid-${videoId}` },
-      visible: true,
-      position: {},
-      bounds: {},
-      scale: {},
-      crop: {},
-    });
-    this.obs.send('SetSourceFilterVisibility', {
-      sourceName: `raid-${videoId}`,
-      filterName: 'FadeIn',
-      filterEnabled: true,
-    });
-    this.obs.send('SetSourceFilterVisibility', {
-      sourceName: 'Super Composite',
-      filterName: 'Blurry',
-      filterEnabled: true,
-    });
-    this.obs.send('SetSourceFilterVisibility', {
-      sourceName: 'DSLR Face Cam GS For Mask',
-      filterName: 'Blurry',
-      filterEnabled: true,
-    });
-  }
-
-  turnOffVideo(videoId: number) {
-    this.obs.send('SetSourceFilterVisibility', {
-      sourceName: `raid-${videoId}`,
-      filterName: 'FadeOut',
-      filterEnabled: true,
-    });
-    this.obs.send('SetSourceFilterVisibility', {
-      sourceName: 'Super Composite',
-      filterName: 'Sharp',
-      filterEnabled: true,
-    });
-    this.obs.send('SetSourceFilterVisibility', {
-      sourceName: 'DSLR Face Cam GS For Mask',
-      filterName: 'Sharp',
-      filterEnabled: true,
-    });
-    setTimeout(() => {
-      this.obs.send('SetSceneItemProperties', {
-        'scene-name': 'DSLR Face Cam Composite',
-        item: { name: `raid-${videoId}` },
-        visible: false,
-        position: {},
-        bounds: {},
-        scale: {},
-        crop: {},
-      });
-    }, 300);
-  }
-
-  writeText(message1: string, message2: string) {
-    const rng = MersenneTwister(Date.now());
-    const effect = Math.ceil(rng.random() * 2);
-
-    const timings = timingsMap[effect];
-    // Turn on raid video
-    this.turnOnVideo(effect);
-
+  writeText(message1: string, message2: string, message3: string) {
     const color = '#e9d5c8';
     const ele = this.writingEle?.nativeElement;
     ele.innerHTML = "<div id='vara-container'></div>";
@@ -170,7 +94,7 @@ export class ChalkboardRaidComponent implements OnInit {
           duration: 3000,
           color,
           x: 0,
-          y: 20,
+          y: 8,
         },
         {
           text: message2,
@@ -178,7 +102,16 @@ export class ChalkboardRaidComponent implements OnInit {
           duration: 1000,
           color,
           x: 0,
-          y: 20,
+          y: 8,
+          fontSize: 64,
+        },
+        {
+          text: message3,
+          fromCurrentPosition: { y: true },
+          duration: 2000,
+          color,
+          x: 0,
+          y: 8,
         },
       ],
       {
@@ -187,23 +120,16 @@ export class ChalkboardRaidComponent implements OnInit {
         textAlign: 'center',
       }
     ).animationEnd((i, o) => {
-      if (i == 1) {
+      if (i == 2) {
         this.showProfileImage = true;
         setTimeout(() => {
-          this.eraseBoard();
           this.showProfileImage = false;
-        }, timings.eraseTimeout);
-        setTimeout(() => {
-          const ele = this.writingEle?.nativeElement;
-          ele.innerHTML = '';
-        }, timings.removeChalkTimeout);
-        setTimeout(() => {
-          this.turnOffVideo(effect);
-        }, timings.turnOffVidTimeout);
+          this.eraseBoard();
+        }, 3000);
         setTimeout(() => {
           ele.innerHTML = '';
           this.writingComplete.emit();
-        }, timings.endTimeout);
+        }, 4500);
       }
     });
   }

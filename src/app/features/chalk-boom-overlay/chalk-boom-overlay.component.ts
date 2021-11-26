@@ -1,4 +1,11 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild, ɵɵsetComponentScope } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  ɵɵsetComponentScope,
+} from '@angular/core';
 import ComfyJS from 'comfy.js';
 
 import {
@@ -16,7 +23,7 @@ import { BoundingBox } from 'src/app/models/bounding-box';
 
 interface Teams {
   [key: string]: string[];
-};
+}
 
 interface Player {
   name: string;
@@ -40,22 +47,22 @@ const TeamColors: { [key: string]: TeamData } = {
   Red: {
     chalk: '#FF0000',
     player: '#ffcccc',
-    name: 'Red' 
+    name: 'Red',
   },
   Blue: {
     chalk: '#0066ff',
     player: '#66ccff',
-    name: 'Blue'
-  }
-}
+    name: 'Blue',
+  },
+};
 
 export interface BoomData {
-  'position': Point,
-  'color': string,
-  'radius': number;
-  'currentRadius': number;
-  'overlap': BoomData[];
-  'player': PlayerData;
+  position: Point;
+  color: string;
+  radius: number;
+  currentRadius: number;
+  overlap: BoomData[];
+  player: PlayerData;
 }
 
 @Component({
@@ -64,22 +71,24 @@ export interface BoomData {
   styleUrls: ['./chalk-boom-overlay.component.scss'],
   animations: [
     trigger('openClose', [
-      state('open', style({
-        width: '128px',
-        height: '128px',
-        'border-radius': '64px'
-      })),
-      state('closed', style({
-        width: '0px',
-        height: '0px',
-        'border-radius': '64px'
-      })),
-      transition('open => closed', [
-        animate('1s')
-      ]),
-      transition('closed => open', [
-        animate('1s')
-      ]),
+      state(
+        'open',
+        style({
+          width: '128px',
+          height: '128px',
+          'border-radius': '64px',
+        })
+      ),
+      state(
+        'closed',
+        style({
+          width: '0px',
+          height: '0px',
+          'border-radius': '64px',
+        })
+      ),
+      transition('open => closed', [animate('1s')]),
+      transition('closed => open', [animate('1s')]),
     ]),
   ],
 })
@@ -94,7 +103,7 @@ export class ChalkBoomOverlayComponent implements OnInit {
   booms: BoomData[] = [];
   lastRender = 0;
   speed = 450; // px/sec
-  boomAcc = 0.025 // acc per second
+  boomAcc = 0.025; // acc per second
   angle = 0.5 * Math.PI;
   boom = false;
   fps = 0;
@@ -104,12 +113,16 @@ export class ChalkBoomOverlayComponent implements OnInit {
 
   progress = 0;
 
-  players: Player[] = [
-  ];
+  players: Player[] = [];
   teams: Teams = {
     red: [],
     blue: [],
-  }
+  };
+
+  teamCounts = {
+    red: 0,
+    blue: 0,
+  };
 
   position: Point = { x: 0, y: 0 };
   boomPosition: Point = { x: 0, y: 0 };
@@ -122,7 +135,7 @@ export class ChalkBoomOverlayComponent implements OnInit {
   constructor(
     private cdr: ChangeDetectorRef,
     private chalkBoom: ChalkBoomService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     console.log('boom overlay component ngoninit');
@@ -133,9 +146,7 @@ export class ChalkBoomOverlayComponent implements OnInit {
     this.startup();
   }
 
-  startup() {
-
-  }
+  startup() {}
 
   gameInit(): void {
     this.phase = 'playing';
@@ -144,7 +155,7 @@ export class ChalkBoomOverlayComponent implements OnInit {
       if (index % 2 === 0) {
         player.team = 'Red';
       } else {
-        player.team = 'Blue'
+        player.team = 'Blue';
       }
     });
 
@@ -153,55 +164,66 @@ export class ChalkBoomOverlayComponent implements OnInit {
 
   chatInit(): void {
     ComfyJS.onCommand = (user, command, message, flags, extra) => {
-      if (command === "boom") {
+      if (command === 'boom') {
         const playerData = this.chalkBoom.getPlayer(user);
         if (playerData) {
+          const radius = playerData.boomAmount * 128;
+          const curTeam = playerData.teamName.toLowerCase();
+          const otherTeam = curTeam === 'red' ? 'blue' : 'red';
+          const teamRatio =
+            this.teamCounts[curTeam] / this.teamCounts[otherTeam];
+          const scaledRadius = Math.sqrt(
+            Math.min(1.0, 1.0 / teamRatio) * radius ** 2
+          );
           const boomData: BoomData = {
             position: { ...playerData.position },
             color: playerData.boomColor,
-            radius: playerData.boomAmount * 128,
+            radius: scaledRadius,
             overlap: [],
             player: playerData,
-            currentRadius: 0
+            currentRadius: 0,
           };
 
-          const underlying = this.booms.filter(boom => {
+          const underlying = this.booms.filter((boom) => {
             const rSum = boom.radius + playerData.boomAmount * 128;
-            const d2 = (boom.position.x - playerData.position.x) ** 2 +
-              (boom.position.y - playerData.position.y) ** 2
-            return d2 < (rSum ** 2);
+            const d2 =
+              (boom.position.x - playerData.position.x) ** 2 +
+              (boom.position.y - playerData.position.y) ** 2;
+            return d2 < rSum ** 2;
           });
           this.booms.push(boomData);
-          underlying.forEach(boom => {
+          underlying.forEach((boom) => {
             boom.overlap.push(boomData);
           });
           this.chalkBoom.updatePlayer({
             ...playerData,
             boomAmount: 0,
-          })
+          });
           this.cdr.detectChanges();
         }
-      } else if (command === "me" && this.phase === 'startup') {
+      } else if (command === 'me' && this.phase === 'startup') {
         if (!this.players.find((player) => player.name === user)) {
           this.players.push({ name: user, team: '' });
         }
-      } else if (command === "me") {
+      } else if (command === 'me') {
         if (!this.players.find((player) => player.name === user)) {
-          const teamCounts = this.players.reduce((acc, player) => {
+          const teamCounts = this.players.reduce(
+            (acc, player) => {
               acc[player.team] += 1;
               return acc;
-            }, 
-            {'Red': 0, 'Blue': 0}
+            },
+            { Red: 0, Blue: 0 }
           );
           const team = teamCounts.Red > teamCounts.Blue ? 'Blue' : 'Red';
-          this.players.push({ name: user, team});
-          if(!(team in this.scores)) {
+          this.players.push({ name: user, team });
+          this.teamCounts[team.toLowerCase()] += 1;
+          if (!(team in this.scores)) {
             this.scores[team] = 0;
           }
         }
       }
-    }
-    ComfyJS.Init("FiniteSingularity");
+    };
+    ComfyJS.Init('FiniteSingularity');
   }
 
   randomizeStart(): void {
@@ -209,7 +231,7 @@ export class ChalkBoomOverlayComponent implements OnInit {
     const height = Math.random() * (window.innerHeight - this.spriteHeight);
     this.angle = 2.0 * Math.PI * Math.random();
     this.position = { x: width / 2, y: height / 2 };
-    if (this.angle >= Math.PI / 2.0 && this.angle < 3.0 * Math.PI / 2.0) {
+    if (this.angle >= Math.PI / 2.0 && this.angle < (3.0 * Math.PI) / 2.0) {
       this.xDir = -1;
     } else {
       this.xDir = 1;
@@ -226,8 +248,10 @@ export class ChalkBoomOverlayComponent implements OnInit {
     this.elapsedTime = timestamp;
     this.lastRender = timestamp;
     this.startTime = this.elapsedTime;
-    Object.keys(this.chalkBoom.players).forEach(key => {
-      this.scores[this.chalkBoom.players[key].teamName] = 0;
+    Object.keys(this.chalkBoom.players).forEach((key) => {
+      const player = this.chalkBoom.players[key];
+      this.scores[player.teamName] = 0;
+      this.teamCounts[player.teamName.toLowerCase()] += 1;
     });
     window.requestAnimationFrame((t) => this.gameLoop(t));
   }
@@ -238,8 +262,7 @@ export class ChalkBoomOverlayComponent implements OnInit {
     this.update(this.progress);
     this.elapsedTime = timestamp;
     this.lastRender = timestamp;
-    console.log(this.elapsedTime)
-    if(this.gameTime - (this.elapsedTime - this.startTime) > 0) {
+    if (this.gameTime - (this.elapsedTime - this.startTime) > 0) {
       window.requestAnimationFrame((t) => this.gameLoop(t));
     } else {
       this.phase = 'winner';
@@ -250,7 +273,7 @@ export class ChalkBoomOverlayComponent implements OnInit {
     let highScore = -1;
     let winner = 'na';
     Object.keys(this.scores).forEach((key) => {
-      if(this.scores[key] > highScore) {
+      if (this.scores[key] > highScore) {
         winner = key;
         highScore = this.scores[key];
       }
@@ -259,7 +282,7 @@ export class ChalkBoomOverlayComponent implements OnInit {
   }
 
   update(progress: number): void {
-    this.chalkBoom.updateBoomAmmount(progress / 1000.0 * this.boomAcc);
+    this.chalkBoom.updateBoomAmmount((progress / 1000.0) * this.boomAcc);
     this.calculateScore();
   }
 
@@ -268,16 +291,16 @@ export class ChalkBoomOverlayComponent implements OnInit {
   }
 
   calculateScore(): void {
-    Object.keys(this.scores).forEach(key => {
+    Object.keys(this.scores).forEach((key) => {
       this.scores[key] = 0;
     });
-    this.booms.forEach(boom => {
+    this.booms.forEach((boom) => {
       const score = this.calculateBoomContribution(boom);
       this.scores[boom.player.teamName] += score;
     });
 
-    Object.keys(this.scores).forEach(key => {
-      this.scores[key] /= (window.innerHeight * window.innerWidth);
+    Object.keys(this.scores).forEach((key) => {
+      this.scores[key] /= window.innerHeight * window.innerWidth;
     });
     this.scores = { ...this.scores };
   }
@@ -286,34 +309,38 @@ export class ChalkBoomOverlayComponent implements OnInit {
     const circle: Circle = {
       center: boom.position,
       r: boom.currentRadius,
-      color: null
+      color: null,
     };
-    const overlapCircles = boom.overlap.map(overlapBoom => {
+    const overlapCircles = boom.overlap.map((overlapBoom) => {
       return {
         center: overlapBoom.position,
         r: overlapBoom.currentRadius,
-        color: null
-      }
-    })
+        color: null,
+      };
+    });
     const compoundArea = this.estimateCompoundArea(circle, overlapCircles);
     return compoundArea;
   }
 
-  estimateCompoundArea(circle: Circle, overlapCircles: Circle[], binSize = 1): number {
-    let area = 0
+  estimateCompoundArea(
+    circle: Circle,
+    overlapCircles: Circle[],
+    binSize = 1
+  ): number {
+    let area = 0;
     const bb = this.getBoundingBox(circle);
     for (let y = bb.minBound.y; y <= bb.maxBound.y; y += binSize) {
       let checked = false;
       let cBounds = this.scanLineBounds(circle, y);
       let scanLineArea = (cBounds.xMax - cBounds.xMin) * binSize;
-      if(isNaN(scanLineArea)) {
+      if (isNaN(scanLineArea)) {
         continue;
       }
-      const scanLineOverlap = overlapCircles.filter(c => {
-        return (c.center.y - c.r <= y) && (c.center.y + c.r >= y)
+      const scanLineOverlap = overlapCircles.filter((c) => {
+        return c.center.y - c.r <= y && c.center.y + c.r >= y;
       });
-      let overlapBounds: { xMin: number, xMax: number }[] = [];
-      scanLineOverlap.forEach(slo => {
+      let overlapBounds: { xMin: number; xMax: number }[] = [];
+      scanLineOverlap.forEach((slo) => {
         const bounds = this.scanLineBounds(slo, y);
         if (bounds.xMin < cBounds.xMax && bounds.xMax > cBounds.xMin) {
           bounds.xMin = Math.max(bounds.xMin, cBounds.xMin);
@@ -321,7 +348,7 @@ export class ChalkBoomOverlayComponent implements OnInit {
           overlapBounds.push({ ...bounds });
         }
       });
-      overlapBounds = overlapBounds.sort((a, b) => a.xMin < b.xMin ? -1 : 1);
+      overlapBounds = overlapBounds.sort((a, b) => (a.xMin < b.xMin ? -1 : 1));
 
       const constrainedBounds = [];
       overlapBounds.forEach((bounds) => {
@@ -329,14 +356,14 @@ export class ChalkBoomOverlayComponent implements OnInit {
         if (length === 0) {
           constrainedBounds.push({ ...bounds });
         } else if (bounds.xMin <= constrainedBounds[length - 1].xMax) {
-          constrainedBounds[length - 1].xMax = bounds.xMax
+          constrainedBounds[length - 1].xMax = bounds.xMax;
         } else {
           constrainedBounds.push({ ...bounds });
         }
       });
-      constrainedBounds.forEach(bounds => {
-        scanLineArea -= (bounds.xMax - bounds.xMin);
-      })
+      constrainedBounds.forEach((bounds) => {
+        scanLineArea -= bounds.xMax - bounds.xMin;
+      });
       area += scanLineArea;
     }
 
@@ -344,7 +371,7 @@ export class ChalkBoomOverlayComponent implements OnInit {
   }
 
   scanLineBounds(circle: Circle, y: number) {
-    const c = Math.sqrt(circle.r ** 2 - (y - circle.center.y) ** 2)
+    const c = Math.sqrt(circle.r ** 2 - (y - circle.center.y) ** 2);
     const xMin = circle.center.x - c;
     const xMax = circle.center.x + c;
     return { xMin, xMax };
@@ -352,13 +379,18 @@ export class ChalkBoomOverlayComponent implements OnInit {
 
   getBoundingBox(circle: Circle): BoundingBox {
     return {
-      minBound: { x: circle.center.x - circle.r, y: circle.center.y - circle.r },
-      maxBound: { x: circle.center.x + circle.r, y: circle.center.y + circle.r }
+      minBound: {
+        x: circle.center.x - circle.r,
+        y: circle.center.y - circle.r,
+      },
+      maxBound: {
+        x: circle.center.x + circle.r,
+        y: circle.center.y + circle.r,
+      },
     };
   }
 
   currentRadius(value: number, index: number): void {
     this.booms[index].currentRadius = value;
   }
-
 }

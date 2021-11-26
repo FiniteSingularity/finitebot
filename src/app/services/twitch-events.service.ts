@@ -7,6 +7,8 @@ import { HttpClient } from '@angular/common/http';
 
 // Local TAU endpoint.  Token is tied to that instance of TAU.
 // Should move this to an environment file.
+//const WS_ENDPOINT = 'ws://localhost:8005/ws/twitch-events/';
+//const token = '3e5c7c7f7535dcc0cc1206df5603208e3e26a100';
 const WS_ENDPOINT = 'ws://localhost:8005/ws/twitch-events/';
 const token = '3e5c7c7f7535dcc0cc1206df5603208e3e26a100';
 
@@ -18,17 +20,13 @@ export interface TwitchEvent {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TwitchEventsService {
   private webSocket: any = null;
   private message$: BehaviorSubject<any> = new BehaviorSubject(null);
 
-  constructor(
-    private http: HttpClient
-  ) {
-
-  }
+  constructor(private http: HttpClient) {}
 
   get message(): Observable<any> {
     return this.message$.asObservable();
@@ -37,18 +35,20 @@ export class TwitchEventsService {
   public connect(): void {
     if (!this.webSocket || this.webSocket.closed) {
       this.webSocket = this.getNewWebSocket();
-      this.webSocket.pipe(
-        // If we are disconnected, wait 2000ms before attempting to reconnect.
-        retryWhen((err) => {
-          console.log("Disconnected!  Attempting reconnection shortly...")
-          return err.pipe(delay(2000));
-        })
-      ).subscribe(
-        // Once we receieve a message from the server, pass it to the handler function.
-        (msg: any) => {
-          this.handler(msg);
-        },
-      );
+      this.webSocket
+        .pipe(
+          // If we are disconnected, wait 2000ms before attempting to reconnect.
+          retryWhen((err) => {
+            console.log('Disconnected!  Attempting reconnection shortly...');
+            return err.pipe(delay(2000));
+          })
+        )
+        .subscribe(
+          // Once we receieve a message from the server, pass it to the handler function.
+          (msg: any) => {
+            this.handler(msg);
+          }
+        );
     }
   }
 
@@ -59,7 +59,7 @@ export class TwitchEventsService {
         next: () => {
           console.log(`Connected to websocket at ${WS_ENDPOINT}`);
           this.sendMessage({ token });
-        }
+        },
       },
     });
   }
@@ -68,9 +68,7 @@ export class TwitchEventsService {
     this.webSocket.next(msg);
   }
 
-  close() {
-
-  }
+  close() {}
 
   handler(msg: any) {
     this.message$.next(msg);
@@ -79,14 +77,26 @@ export class TwitchEventsService {
   getTwitchUserData(username: string) {
     const options = {
       headers: {
-        Authorization: `Token ${token}`
-      }
+        Authorization: `Token ${token}`,
+      },
     };
     console.log(options);
     return this.http.get(
-      `http://localhost:8005/api/v1/twitch-user/?login=${username}`,
+      `http://localhost:8005/api/twitch/helix/users?login=${username}`,
       {
-        headers: { Authorization: `Token ${token}` }
+        headers: { Authorization: `Token ${token}` },
+      }
+    );
+  }
+
+  setRewardCost(broadcaster_id, reward_id, cost) {
+    return this.http.patch(
+      `http://localhost:8005/api/twitch/helix/channel_points/custom_rewards?broadcaster_id=${broadcaster_id}&id=${reward_id}`,
+      {
+        cost,
+      },
+      {
+        headers: { Authorization: `Token ${token}` },
       }
     );
   }

@@ -8,6 +8,11 @@ import { ChalkboardPointTestComponent } from './components/chalkboard-point-test
 import { ChalkboardSubscribeComponent } from './components/chalkboard-subscribe/chalkboard-subscribe.component';
 import { ChalkboardRaidComponent } from './components/chalkboard-raid/chalkboard-raid.component';
 import { BringFiniteWaterComponent } from './components/bring-finite-water/bring-finite-water.component';
+import { BehindYouComponent } from './components/behind-you/behind-you.component';
+import { MessageMatrixComponent } from './components/message-matrix/message-matrix.component';
+import { ChalkboardGiftSubComponent } from './components/chalkboard-gift-sub/chalkboard-gift-sub.component';
+import { ChalkboardSubNoMessageComponent } from './components/chalkboard-sub-no-message/chalkboard-sub-no-message.component';
+import { CaptJackReviewComponent } from './components/capt-jack-review/capt-jack-review.component';
 
 @NgModule({
   declarations: [
@@ -16,11 +21,13 @@ import { BringFiniteWaterComponent } from './components/bring-finite-water/bring
     ChalkboardPointTestComponent,
     ChalkboardSubscribeComponent,
     ChalkboardRaidComponent,
-    BringFiniteWaterComponent
+    BringFiniteWaterComponent,
+    BehindYouComponent,
+    MessageMatrixComponent,
+    ChalkboardGiftSubComponent,
+    ChalkboardSubNoMessageComponent,
+    CaptJackReviewComponent,
   ],
-  imports: [
-    CommonModule,
-    RouterModule.forChild(ChalkboardOverlayRoutes)
-  ]
+  imports: [CommonModule, RouterModule.forChild(ChalkboardOverlayRoutes)],
 })
-export class ChalkboardOverlayModule { }
+export class ChalkboardOverlayModule {}

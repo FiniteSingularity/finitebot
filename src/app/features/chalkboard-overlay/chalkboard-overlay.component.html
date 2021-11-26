@@ -6,7 +6,8 @@
 ></app-chalkboard-cheer>
 <app-chalkboard-point-test
   *ngIf="currentOverlay === 'point-test'"
-    [msg]="currentMessage"
+  [msg]="currentMessage"
+  [obs]="obs"
   (writingComplete) = "writingComplete()"
 ></app-chalkboard-point-test>
 <app-chalkboard-subscribe
@@ -15,6 +16,18 @@
   [extraData]="currentExtraData"
   (writingComplete)="writingComplete()"
 ></app-chalkboard-subscribe>
+<app-chalkboard-sub-no-message
+  *ngIf="currentOverlay === 'subscribe-no-message'"
+  [msg]="currentMessage"
+  [extraData]="currentExtraData"
+  (writingComplete)="writingComplete()"
+></app-chalkboard-sub-no-message>
+<app-chalkboard-gift-sub
+  *ngIf="currentOverlay === 'gift-subscription'"
+  [msg]="currentMessage"
+  [extraData]="currentExtraData"
+  (writingComplete)="writingComplete()"
+></app-chalkboard-gift-sub>
 <app-chalkboard-raid
   *ngIf="currentOverlay === 'raid'"
   [msg]="currentMessage"
@@ -27,3 +40,18 @@
   [obs]="obs"
   (redemptionComplete)="writingComplete()"
 ></app-bring-finite-water>
+<app-capt-jack-review
+  *ngIf="currentOverlay === 'capt-jack-review'"
+  [obs]="obs"
+  [history]="lastScenes.captJackReview"
+  (updateHistory)="lastScenes.captJackReview = $event"
+  (redemptionComplete)="writingComplete()"
+></app-capt-jack-review>
+<app-behind-you
+  *ngIf="currentOverlay === 'behind-you'"
+  [obs]="obs"
+  [lastEffect]="lastBehindYou"
+  (redemptionComplete)="writingComplete()"
+  (effectSelected)="lastBehindYou = $event"
+></app-behind-you>
+

@@ -5,7 +5,7 @@ import {
   Input,
   OnInit,
   Output,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 
 import {
@@ -24,20 +24,22 @@ import * as Vara from 'vara';
   styleUrls: ['./chalkboard-subscribe.component.scss'],
   animations: [
     trigger('openClose', [
-      state('open', style({
-        width: '300px',
-        height: '300px',
-      })),
-      state('closed', style({
-        width: '0px',
-        height: '0px',
-      })),
-      transition('open => closed', [
-        animate('1s')
-      ]),
-      transition('closed => open', [
-        animate('1s')
-      ]),
+      state(
+        'open',
+        style({
+          width: '300px',
+          height: '300px',
+        })
+      ),
+      state(
+        'closed',
+        style({
+          width: '0px',
+          height: '0px',
+        })
+      ),
+      transition('open => closed', [animate('1s')]),
+      transition('closed => open', [animate('1s')]),
     ]),
   ],
 })
@@ -52,25 +54,31 @@ export class ChalkboardSubscribeComponent implements OnInit {
   vara: any;
   showProfileImage = false;
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit(): void {
     this.setupMessage();
   }
 
   setupMessage(): void {
-    const data = this.msg.event_data.message;
-    const tier = data.sub_plan === '1000' ? 'at Tier 1' :
-      data.sub_plan === '2000' ? 'at Tier 2' :
-        data.sub_play === '3000' ? 'at Tier 3' :
-          'with prime';
+    const data = this.msg.event_data;
+    const tier =
+      data.tier === '1000'
+        ? 'at Tier 1'
+        : data.tier === '2000'
+        ? 'at Tier 2'
+        : data.tier === '3000'
+        ? 'at Tier 3'
+        : 'with prime';
 
-    const duration = data.cumulative_months === "1" ? '' :
-      `for ${data.cumulative_months} months`;
+    const duration =
+      data.cumulative_months === '1'
+        ? ''
+        : `for ${data.cumulative_months} months`;
 
-    const message1 = `${data.display_name} Subscribed`;
+    const message1 = `${data.user_name} Subscribed`;
     const message2 = `${tier} ${duration}`;
-    const message3 = data.sub_message.message;
+    const message3 = data.message.text;
     this.writeText(message1, message2, message3);
   }
 
@@ -78,8 +86,9 @@ export class ChalkboardSubscribeComponent implements OnInit {
     const color = '#e9d5c8';
     const ele = this.writingEle?.nativeElement;
     ele.innerHTML = "<div id='vara-container'></div>";
-    this.vara = new Vara('#vara-container',
-      "https://rawcdn.githack.com/akzhy/Vara/ed6ab92fdf196596266ae76867c415fa659eb348/fonts/Satisfy/SatisfySL.json",
+    this.vara = new Vara(
+      '#vara-container',
+      'https://rawcdn.githack.com/akzhy/Vara/ed6ab92fdf196596266ae76867c415fa659eb348/fonts/Satisfy/SatisfySL.json',
       [
         {
           text: message1,
@@ -120,7 +129,7 @@ export class ChalkboardSubscribeComponent implements OnInit {
           this.eraseBoard();
         }, 3000);
         setTimeout(() => {
-          ele.innerHTML = "";
+          ele.innerHTML = '';
           this.writingComplete.emit();
         }, 4500);
       }
@@ -143,18 +152,27 @@ export class ChalkboardSubscribeComponent implements OnInit {
         bbox.xMax = Math.max(bbox.xMax, pBbox.x + pBbox.width);
         bbox.yMax = Math.max(bbox.yMax, pBbox.y + pBbox.height);
       });
-      const mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
-      const maskFill = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      const mask = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'mask'
+      );
+      const maskFill = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'rect'
+      );
+      const path = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'path'
+      );
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
 
-      mask.setAttribute("id", "mask");
+      mask.setAttribute('id', 'mask');
 
-      maskFill.setAttribute("x", "0");
-      maskFill.setAttribute("y", "0");
-      maskFill.setAttribute("width", `${svgWidth}`);
-      maskFill.setAttribute("height", `${svgHeight}`);
-      maskFill.setAttribute("fill", "white");
+      maskFill.setAttribute('x', '0');
+      maskFill.setAttribute('y', '0');
+      maskFill.setAttribute('width', `${svgWidth}`);
+      maskFill.setAttribute('height', `${svgHeight}`);
+      maskFill.setAttribute('fill', 'white');
 
       const numLegs = 10;
       const start = { x: bbox.xMin, y: bbox.yMin };
@@ -166,8 +184,8 @@ export class ChalkboardSubscribeComponent implements OnInit {
         const x = bbox.xMin + (step + 1) * dx;
         d += ` L${x},${y}`;
       }
-      path.setAttribute("d", d);
-      path.setAttribute("class", "erase");
+      path.setAttribute('d', d);
+      path.setAttribute('class', 'erase');
       const length = path.getTotalLength();
       path.style.strokeDasharray = length + ' ' + length;
       path.style.strokeDashoffset = `${length}`;
@@ -175,10 +193,9 @@ export class ChalkboardSubscribeComponent implements OnInit {
       mask.appendChild(maskFill);
       mask.appendChild(path);
       svg.appendChild(mask);
-      g.setAttribute("mask", "url(#mask)");
+      g.setAttribute('mask', 'url(#mask)');
       svg.appendChild(g);
-      paths.filter(p => p.tagName === 'g').forEach(p => g.appendChild(p));
+      paths.filter((p) => p.tagName === 'g').forEach((p) => g.appendChild(p));
     }
   }
-
 }
